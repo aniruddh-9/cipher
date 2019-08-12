@@ -14,7 +14,7 @@ void sameRow(vector<char>&,int,int,int);
 void diffColoumn(vector<char>&,int,int,int,int);
 void declutter(vector<char>&,vector<char>&);
 void getInput(vector<char>&);               // & required for reference
-vector<char> encode(vector<char>&);
+vector<char> encipher(vector<char>&);
 void print(vector<char>&);
 
 void getInput(vector<char>& msg){
@@ -74,7 +74,7 @@ void getPosition(char ch,int& row, int& col){
     return;
 }
 
-vector<char> encode(vector<char>& msgx){
+vector<char> encipher(vector<char>& msgx){
     vector<char> cipher;
     int r1,r2,c1,c2;
     int i=0;
@@ -117,14 +117,11 @@ int main(){
     vector<char> msg;
     vector<char> msgx;
     vector<char> cipher;
-    int row,col;
-    char ch='P';
-
     getInput(msg);
     print(msg);
     declutter(msg,msgx);
     print(msgx);
-    cipher = encode(msgx);
+    cipher = encipher(msgx);
     cout<<"Cipher Text: ";
     print(cipher);
     return 0;
