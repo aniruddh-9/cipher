@@ -11,10 +11,13 @@ const char encoder[5][5]={{'E','Q','U','I','N'},        // EQUINOX IS THE KEY
 void getPosition(char,int&,int&);
 void sameColoumn(vector<char>&,int,int,int);
 void sameRow(vector<char>&,int,int,int);
+void sameColoumnDecipher(vector<char>&,int,int,int);
+void sameRowDecipher(vector<char>&,int,int,int);
 void diffColoumn(vector<char>&,int,int,int,int);
 void declutter(vector<char>&,vector<char>&);
 void getInput(vector<char>&);               // & required for reference
 vector<char> encipher(vector<char>&);
+vector<char> decipher(vector<char>&);
 void print(vector<char>&);
 
 void getInput(vector<char>& msg){
@@ -106,23 +109,55 @@ void sameColoumn(vector<char>& cipher,int c1,int r1,int r2){
     return;
 }
 
+void sameRowDecipher(vector<char>& cipher,int r1,int c1,int c2){
+    cipher.push_back(encoder[r1][(c1-1)%5]);
+    cipher.push_back(encoder[r1][(c2-1)%5]);
+    return;
+}
+
+void sameColoumnDecipher(vector<char>& cipher,int c1,int r1,int r2){
+    cipher.push_back(encoder[(r1-1)%5][c1]);
+    cipher.push_back(encoder[(r2-1)%5][c1]);
+    return;
+}
+
 void diffColoumn(vector<char>& cipher,int r1,int r2,int c1,int c2){
     cipher.push_back(encoder[r1][c2]);
     cipher.push_back(encoder[r2][c1]);
     return;
 }
 
+vector<char> decipher(vector<char>& cipher){
+    vector<char> decipher;
+    int r1,r2,c1,c2;
+    int i=0;
+    while(i<cipher.size()){
+        getPosition(cipher[i],r1,c1);
+        i++;
+        getPosition(cipher[i],r2,c2);
+        if(r1==r2)
+            sameRowDecipher(decipher,r1,c1,c2);
+        else if(c1==c2)
+            sameColoumnDecipher(decipher,c1,r1,r2);
+        else
+            diffColoumn(decipher,r1,r2,c1,c2);  
+        i++;      
+    }
+    return decipher;
+}
 
 int main(){
     vector<char> msg;
     vector<char> msgx;
     vector<char> cipher;
+    vector<char> msgd;
     getInput(msg);
-    print(msg);
     declutter(msg,msgx);
-    print(msgx);
     cipher = encipher(msgx);
     cout<<"Cipher Text: ";
     print(cipher);
+    cout<<"Decipher Text: ";
+    msgd = decipher(cipher);
+    print(msgd);
     return 0;
 }
