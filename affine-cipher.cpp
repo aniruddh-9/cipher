@@ -13,6 +13,8 @@ void bruteForce(vector<char>& cipher);
 bool isGCD(int);
 int GCD(int,int);
 void knownplaintext(vector<char>&,vector<char>&);
+void negativeModulo(int&);
+void fractionModulo(int&,int&);
 
 int key1=11;
 int key2=20;
@@ -119,13 +121,35 @@ void bruteForce(vector<char>& msg,vector<char>& cipher){
         }
     }
 }
-
-void knownplaintext(vector<char>& cip,vector<char>& dec){
-    
+void fractionModulo(int& temp1,int & temp2){
+    if(temp1%temp2){
+        while(temp1%temp2)
+            temp1+=26;
+    }
+}
+void negativeModulo(int& temp1){
+    if(temp1<0){
+        while(temp1<0)
+            temp1+=26;
+    }
+}
+void knownplaintext(vector<char>& plain,vector<char>& cipher){
+    char ch;
+    int a,b;
+    int temp1,temp2;
+    temp1=(int)cipher[0]-(int)cipher[1];
+    temp2=(int)plain[0]-(int)plain[1];
+    negativeModulo(temp1);
+    negativeModulo(temp2);
+    fractionModulo(temp1,temp2);
+    a=temp1/temp2;
+    b=(int)cipher[0]-65-((int)plain[0]-65)*a;
+    negativeModulo(b);
+    cout<<"Keys are: "<<a<<"  "<<b<<"\n";
 }
 
 int main(){
-    vector<char> msg,cipher,msgd;
+    vector<char> msg,cipher,msgd,a,b;
     cout<<"Enter the message: ";
     getInput(msg);
     encipher(msg,cipher);
@@ -136,5 +160,11 @@ int main(){
     print(msgd);
     cout<<"BruteForce: ";
     bruteForce(msg,cipher);
+    cout<<"------ PLAIN TEST ATTACK --------\n";
+    cout<<" Enter Plain Text :";
+    getInput(a);
+    cout<<" Enter Cipher Text :";
+    getInput(b);
+    knownplaintext(a,b);
     return 0;
 }
