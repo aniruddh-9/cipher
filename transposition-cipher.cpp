@@ -53,6 +53,15 @@ void printCipher(vector<char>& msg){
     return;
 }
 
+void printDecipher(){
+    for(int i=1;i<matrix.size();i++){
+        for(int j=0;j<matrix[i].size();j++)
+            cout<<matrix[i][j];
+    }
+    cout<<"\n";
+    return;
+}
+
 void findRank(char ch,vector<char>& key){
     int rank=1;
     for(int i=0;i<key.size();i++){
@@ -102,6 +111,12 @@ void encipher(vector<char>& cipher){
     }
 }
 
+void decipher(){
+    for(int i=1;i<matrix.size();i++){
+        print(matrix[i]);
+    }
+}
+
 int main(){
     vector<char> msg,cipher,msgd;
     vector<int> order;
@@ -112,5 +127,7 @@ int main(){
     encipher(cipher);
     cout<<"Cipher: ";
     printCipher(cipher);
+    cout<<"Decipher: ";
+    printDecipher();
     return 0;
 }
