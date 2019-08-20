@@ -193,10 +193,9 @@ int main(){
     vector<char> msgx;
     vector<char> cipher;
     vector<char> msgd;
+    cout<<"Enter the message: ";
     getInput(msg);
-    print(msg);
     declutter(msg,msgx);
-    print(msgx);
     cipher = encipher(msgx);
     cout<<"Cipher Text: ";
     print(cipher);
