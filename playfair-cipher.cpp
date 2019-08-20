@@ -10,8 +10,8 @@ const char encoder[5][5]=  {{'E','Q','U','I','N'},        // EQUINOX IS THE KEY
                             {'T','V','W','Y','Z'}};
 
 void getPosition(char,int&,int&);
-void sameColoumn(vector<char>&,int,int,int);
-void sameRow(vector<char>&,int,int,int);
+void sameColoumn(vector<char>&,int,int,int,bool);
+void sameRow(vector<char>&,int,int,int,bool);
 void diffColoumn(vector<char>&,int,int,int,int);
 void declutter(vector<char>&,vector<char>&);
 void getInput(vector<char>&);               // & required for reference
@@ -93,9 +93,9 @@ vector<char> encipher(vector<char>& msgx){
         getPosition(msgx[i],r2,c2);
         i++;
         if(r1==r2)
-            sameRow(cipher,r1,c1,c2);
+            sameRow(cipher,r1,c1,c2,false);
         else if(c1==c2)
-            sameColoumn(cipher,c1,r1,r2);
+            sameColoumn(cipher,c1,r1,r2,false);
         else
             diffColoumn(cipher,r1,r2,c1,c2);      
     }
@@ -103,23 +103,49 @@ vector<char> encipher(vector<char>& msgx){
 
 }
 
-void sameRow(vector<char>& cipher,int r1,int c1,int c2){
-    cipher.push_back(encoder[r1][(c1+1)%5]);
+void sameRow(vector<char>& cipher,int r1,int c1,int c2,bool decrypt){
+    int c=1;
+    int a,b;
+    a=c1+c;
+    b=c2+c;
+    if(decrypt){
+        c=-1;
+        a=c1+c;
+        b=c2+c;
+        if(a<0)
+            a+=5;
+        if(b<0)
+            b+=5;   
+    }
+    cipher.push_back(encoder[r1][a%5]);
     if (flag){
             cipher.push_back(' ');
             flag=0;
         }
-    cipher.push_back(encoder[r1][(c2+1)%5]);
+    cipher.push_back(encoder[r1][b%5]);
     return;
 }
 
-void sameColoumn(vector<char>& cipher,int c1,int r1,int r2){
-    cipher.push_back(encoder[(r1+1)%5][c1]);
+void sameColoumn(vector<char>& cipher,int c1,int r1,int r2,bool decrypt){
+    int c=1;
+    int a,b;
+    a=r1+c;
+    b=r2+c;
+    if(decrypt){
+        c=-1;
+        a=r1+c;
+        b=r2+c;
+        if(a<0)
+            a+=5;
+        if(b<0)
+            b+=5;   
+    }
+    cipher.push_back(encoder[a%5][c1]);
     if (flag){
             cipher.push_back(' ');
             flag=0;
         }
-    cipher.push_back(encoder[(r2+1)%5][c1]);
+    cipher.push_back(encoder[b%5][c1]);
     return;
 }
 
@@ -131,6 +157,35 @@ void diffColoumn(vector<char>& cipher,int r1,int r2,int c1,int c2){
         }
     cipher.push_back(encoder[r2][c1]);
     return;
+}
+
+vector<char> decipher(vector<char>& cipher){
+    vector<char> msgd;
+    int r1,r2,c1,c2;
+    int i=0;
+    while(i<cipher.size()){
+        if(cipher[i]==' '){
+            msgd.push_back(' ');
+            i++;
+            continue;
+        }
+        getPosition(cipher[i],r1,c1);
+        i++;
+        if(cipher[i]==' '){
+            flag=1;
+            i++;
+        }
+        getPosition(cipher[i],r2,c2);
+        i++;
+        if(r1==r2)
+            sameRow(msgd,r1,c1,c2,true);
+        else if(c1==c2)
+            sameColoumn(msgd,c1,r1,r2,true);
+        else
+            diffColoumn(msgd,r1,r2,c1,c2);      
+    }
+    return msgd;
+
 }
 
 int main(){
@@ -145,8 +200,8 @@ int main(){
     cipher = encipher(msgx);
     cout<<"Cipher Text: ";
     print(cipher);
-   // cout<<"Decipher Text: ";
-   // msgd = decipher(cipher);
-   // print(msgd);
+    cout<<"Decipher Text: ";
+    msgd = decipher(cipher);
+    print(msgd);
     return 0;
 }
