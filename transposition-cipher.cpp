@@ -49,16 +49,7 @@ void printCipher(vector<char>& msg){
     for(int i=0;i<msg.size();i++){
         cout<<msg[i];
     }
-    cout<<"\n";
-    return;
-}
-
-void printDecipher(){
-    for(int i=1;i<matrix.size();i++){
-        for(int j=0;j<matrix[i].size();j++)
-            cout<<matrix[i][j];
-    }
-    cout<<"\n";
+    cout<<"\n\n";
     return;
 }
 
@@ -68,7 +59,7 @@ void findRank(char ch,vector<char>& key){
         if(ch>key[i])
             rank++;
     }
-    order.push_back(char(rank));
+    order.push_back(rank);
     return;
 }
 
@@ -77,6 +68,7 @@ void makeMatrix(vector<char>& msg){
     for(int j=0;j<key.size();j++){
         findRank(key[j],key);
     }
+    
     int i=0;
     while(i<=msg.size()){
         vector<char> temp;
@@ -111,15 +103,32 @@ void encipher(vector<char>& cipher){
     }
 }
 
-void decipher(){
-    for(int i=1;i<matrix.size();i++){
-        print(matrix[i]);
+void decipher(vector<char>& cipher,vector<char>& msgd){
+    const int rows=cipher.size()/key.size();
+    char decMatrix[rows][key.size()];
+    for(int j=0;j<key.size();j++){
+        int k=order[j];
+        int i=(k-1)*rows;
+        int count=0;
+        while(count<rows){
+            decMatrix[count++][j]=cipher[i++];
+        }
     }
+    /*for(int i=0;i<cipher.size()/key.size();i++){          // To show the decipher matrix formed.
+        for(int m=0;m<key.size();m++){
+            cout<<decMatrix[i][m]<<"  ";
+        }
+        cout<<"\n";
+    }*/
+    for(int i=0;i<cipher.size()/key.size();i++){  
+        for(int m=0;m<key.size();m++)
+            msgd.push_back(decMatrix[i][m]);
+    }
+    return;
 }
 
 int main(){
     vector<char> msg,cipher,msgd;
-    vector<int> order;
     getInput(msg);
     makeMatrix(msg);
     for(int i=0;i<matrix.size();i++)
@@ -127,7 +136,8 @@ int main(){
     encipher(cipher);
     cout<<"Cipher: ";
     printCipher(cipher);
+    decipher(cipher,msgd);
     cout<<"Decipher: ";
-    printDecipher();
+    printCipher(msgd);
     return 0;
 }
