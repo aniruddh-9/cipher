@@ -3,8 +3,6 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-
-
 int init_permut[64]=  { 58,50,42,34,26,18,10,2, 
                         60,52,44,36,28,20,12,4, 
                         62,54,46,38,30,22,14,6, 
@@ -121,7 +119,7 @@ int key_compress[48]= { 14,17,11,24,1,5,
                         46,42,50,36,29,32 
                     }; 
 
-string getInput();
+string getInput(int&);
 string hex2bin(string);
 string bin2hex(string);
 string permutation(string,int*,int);
@@ -135,16 +133,18 @@ string toHex(string inp){
     string op="";
     for(int i=0;i<inp.length();i++){
         int n = (int)inp[i];
+        string s="";
         while(n!=0){
             int temp=n%16;
             if(temp<10)
-                op.push_back((char)(temp+48));
+                s.push_back((char)(temp+48));
             else
-                op.push_back((char)(temp+55));
+                s.push_back((char)(temp+55));
             n=n/16;
         }
+        reverse(s.begin(),s.end());
+        op+=s;
     }
-    reverse(op.begin(),op.end());
     return op;
 }
 
@@ -170,18 +170,20 @@ string fromHex(string out){
                         buf = out[i];
                 }
         }
-    reverse(plain.begin(),plain.end());
     return plain;
 }
 
-string getInput(){
+string getInput(int& length){
     string inp;
     cout<<"Enter Message: ";
     getline(cin,inp);
-    if(inp.length()%8){
-        while(inp.length()%8)
-            inp+=' ';
+    length=inp.length();
+    inp=toHex(inp);
+    if(inp.length()%16){
+        while(inp.length()%16)
+            inp+='0';
     }
+    cout<<"\nMessage in Hexadecimal: "<<inp<<endl;
     return inp;
 }
 
@@ -281,7 +283,6 @@ string encrypt(string plain, vector<string> fnKeyBin, vector<string> fnKeyHex){
     string right= plain.substr(32, 32); 
     //cout<<"After Splitting: L0="<<bin2hex(left) 
        //     <<" R0="<<bin2hex(right)<<endl; 
-    cout<<endl;
    // cout<<"\t  Left\t  Right\t  Round Key"<<endl;
     for(int i=0; i<16; i++){ 
         string right_expanded= permutation(right, expand, 48);  // EXPANSION OF KEY
@@ -320,7 +321,6 @@ string encrypt(string plain, vector<string> fnKeyBin, vector<string> fnKeyHex){
 
 string encipher(string msg,string key,bool decrypt){
     string plain;
-    //plain=toHex(msg);
     plain=msg;
     key= hex2bin(key);  
     key= permutation(key, key_permut, 56);
@@ -346,21 +346,22 @@ string encipher(string msg,string key,bool decrypt){
 }
 
 int main(){  
-    string plain;
-    string cipher,decipher;
-    plain=getInput();
+    string plain,cipher,decipher;
+    int length;
+    plain=getInput(length);
     string key="245DFA61C05B6E3F";
     for(int i=0;i<plain.length();i+=16){
         string sub= plain.substr(i,i+16);
         cipher+=encipher(sub,key,false);
-        cout<<"-----------"<<cipher<<endl;
     }
-    cout<<"\n\nCipher: "<<cipher<<endl;;
+    cout<<"\nCipher: "<<cipher<<endl;;
 
     for(int i=0;i<cipher.length();i+=16){
-        string sub= cipher.substr(i,i+8);
+        string sub= cipher.substr(i,i+16);
         decipher+=encipher(sub,key,true);
-        cout<<"-----------"<<cipher<<endl;
     } 
-    cout<<"\n\n Decipher: "<<decipher<<endl;
+    cout<<"\nDecipher: "<<decipher<<endl;
+    decipher=decipher.substr(0,2*length);
+    decipher=fromHex(decipher);
+    cout<<"\nPlain Text: "<<decipher<<endl;;
 } 
