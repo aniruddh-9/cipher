@@ -1,3 +1,6 @@
+// Weakness is Weak Key
+// Exhaustive Search
+
 #include<iostream>
 #include<bits/stdc++.h>
 using namespace std;
@@ -12,7 +15,7 @@ int init_permut[64]=  { 58,50,42,34,26,18,10,2,
                         63,55,47,39,31,23,15,7 
                         }; 
 
-int exp_d[48]=  {   32,1,2,3,4,5,4,5, 
+int expand[48]=  {   32,1,2,3,4,5,4,5, 
                     6,7,8,9,8,9,10,11, 
                     12,13,12,13,14,15,16,17, 
                     16,17,18,19,20,21,20,21, 
@@ -72,7 +75,7 @@ int s[8][4][16]=
         2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11 
     }};
 
-int per[32]= {  16,7,20,21, 
+int Straight_Per[32]= {  16,7,20,21, 
                 29,12,28,17, 
                 1,15,23,26, 
                 5,18,31,10, 
@@ -92,7 +95,7 @@ int final_permut[64]={40,8,48,16,56,24,64,32,
                     33,1,41,9,49,17,57,25 
                     }; 
 
-int keyp[56]={  57,49,41,33,25,17,9, 
+int key_permut[56]={  57,49,41,33,25,17,9, 
                 1,58,50,42,34,26,18, 
                 10,2,59,51,43,35,27, 
                 19,11,3,60,52,44,36,           
@@ -100,24 +103,22 @@ int keyp[56]={  57,49,41,33,25,17,9,
                 7,62,54,46,38,30,22, 
                 14,6,61,53,45,37,29, 
                 21,13,5,28,20,12,4 
-                }; //parity drop table
+                }; 
 
-      //Number of bit shifts  
 int shift_table[16]= {  1, 1, 2, 2, 
                         2, 2, 2, 2,  
                         1, 2, 2, 2,  
                         2, 2, 2, 1 
                     }; 
       
-    //Key- Cobinression Table 
-int key_cobin[48]= { 14,17,11,24,1,5, 
-                    3,28,15,6,21,10, 
-                    23,19,12,4,26,8, 
-                    16,7,27,20,13,2, 
-                    41,52,31,37,47,55, 
-                    30,40,51,45,33,48, 
-                    44,49,39,56,34,53, 
-                    46,42,50,36,29,32 
+int key_compress[48]= { 14,17,11,24,1,5, 
+                        3,28,15,6,21,10, 
+                        23,19,12,4,26,8, 
+                        16,7,27,20,13,2, 
+                        41,52,31,37,47,55, 
+                        30,40,51,45,33,48, 
+                        44,49,39,56,34,53, 
+                        46,42,50,36,29,32 
                     }; 
 
 string hex2bin(string);
@@ -215,30 +216,21 @@ string XOR(string a, string b){
     return result; 
 } 
 
-string encrypt(string pt, vector<string> rkb, vector<string> rk){ 
-    //Hexadecimal to binary  
-    pt= hex2bin(pt); 
-    
-    //Initial Permutation 
-    pt= permutation(pt, init_permut, 64); 
-    cout<<"After initial permutation: "<<bin2hex(pt)<<endl; 
-      
-    //Splitting  
-    string left= pt.substr(0, 32); 
-    string right= pt.substr(32, 32); 
-    cout<<"After splitting: L0="<<bin2hex(left) 
+string encrypt(string plain, vector<string> fnKeyBin, vector<string> fnKeyHex){   
+    plain= hex2bin(plain); 
+    plain= permutation(plain, init_permut, 64); 
+    cout<<"After Initial Permutation: "<<bin2hex(plain)<<endl; 
+    string left= plain.substr(0, 32); 
+    string right= plain.substr(32, 32); 
+    cout<<"After Splitting: L0="<<bin2hex(left) 
             <<" R0="<<bin2hex(right)<<endl; 
-  
-    cout<<endl; 
+    cout<<endl;
+    cout<<"\t  Left\t  Right\t  Round Key"<<endl;
     for(int i=0; i<16; i++){ 
-        //Expansion D-box 
-        string right_expanded= permutation(right, exp_d, 48); 
-          
-        //XOR RoundKey[i] and right_expanded 
-        string x= XOR(rkb[i], right_expanded); 
-          
-        //S-boxes 
-        string op=""; 
+        string right_expanded= permutation(right, expand, 48);  // EXPANSION OF KEY
+        string x= XOR(fnKeyBin[i], right_expanded); 
+
+        string op="";                                   // S-BOX
         for(int i=0;i<8; i++){ 
             int row= 2*int(x[i*6]-'0')+ int(x[i*6 +5]-'0'); 
             int col= 8*int(x[i*6 +1 ]-'0')+ 4*int(x[i*6 +2]-'0')+  
@@ -252,26 +244,50 @@ string encrypt(string pt, vector<string> rkb, vector<string> rk){
             val= val%2; 
             op+= char(val+ '0'); 
         } 
-        //Straight D-box 
-        op= permutation(op, per, 32); 
-          
-        //XOR left and op 
+
+        op= permutation(op, Straight_Per, 32);         // STRAIGHT PERMUTATION
         x= XOR(op, left); 
-          
-        left= x; 
-          
-        //Swapper 
-        if(i!= 15){ 
+
+        left=right; 
+        right= x;
+
+        if(i== 15){ 
             swap(left, right); 
         } 
-        cout<<"Round "<<i+1<<" "<<bin2hex(left)<<" "
-                              <<bin2hex(right)<<" "<<rk[i]<<endl; 
+        cout<<"Round "<<i+1<<" "<<bin2hex(left)<<" "<<bin2hex(right)<<" "<<fnKeyHex[i]<<endl; 
     } 
-      
-    //Combination 
-    string combine= left+right; 
-      
-    //Final Permutation 
+    string combine= left+right;  
     string cipher= bin2hex(permutation(combine, final_permut, 64)); 
     return cipher; 
+} 
+
+int main(){  
+    string plain, key; 
+    cout<<"Enter plain text(in hexadecimal): "; 
+    cin>>plain; 
+    key="245DFA61C05B6E3F";
+    key= hex2bin(key);  
+    key= permutation(key, key_permut, 56);
+    string left= key.substr(0, 28); 
+    string right= key.substr(28, 28);   
+    vector<string> fnKeyBin;
+    vector<string> fnKeyHex;
+    for(int i=0; i<16; i++){ 
+        left= shift_key(left, shift_table[i]); 
+        right= shift_key(right, shift_table[i]); 
+          
+        string combine= left + right; 
+        string FunctionKey= permutation(combine, key_compress, 48);     
+        fnKeyBin.push_back(FunctionKey); 
+        fnKeyHex.push_back(bin2hex(FunctionKey)); 
+    }     
+    cout<<"\n ---- Encryption ----\n\n"; 
+    string cipher= encrypt(plain, fnKeyBin,fnKeyHex); 
+    cout<<"\nCipher Text: "<<cipher<<endl; 
+      
+    cout<<"\n ---- Decryption ----\n\n"; 
+    reverse(fnKeyBin.begin(), fnKeyBin.end()); 
+    reverse(fnKeyHex.begin(), fnKeyHex.end()); 
+    string text= encrypt(cipher, fnKeyBin,fnKeyHex); 
+    cout<<"\nPlain Text: "<<text<<endl; 
 } 
