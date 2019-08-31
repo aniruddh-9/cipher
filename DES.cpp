@@ -1,6 +1,5 @@
-// Weakness is Weak Key
+// Weakness is Weak Cipher
 // Exhaustive Search
-
 #include<iostream>
 #include<bits/stdc++.h>
 using namespace std;
