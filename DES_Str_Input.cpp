@@ -325,7 +325,7 @@ string encipher(string msg,string key,bool decrypt){
     key= hex2bin(key);  
     key= permutation(key, key_permut, 56);
     string left= key.substr(0, 28); 
-    string right= key.substr(28, 28);   
+    string right= key.substr(28, 56);   
     vector<string> fnKeyBin;
     vector<string> fnKeyHex;
     for(int i=0; i<16; i++){ 
