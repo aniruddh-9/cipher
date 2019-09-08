@@ -218,10 +218,13 @@ string XOR(string a,string b){
     return result;
 }
 
-void encipher(vector<int>& key,string input,vector<char>& cipher){
+void encipher(vector<int>& key,string input,vector<char>& cipher,bool decipher){
     initialize(key);
     initPermutation();
-    streamGenerate(toHex(input),cipher);
+    if(decipher)
+        streamGenerate(input,cipher);
+    else
+        streamGenerate(toHex(input),cipher);
 }
 
 void print(vector<char>& vec){
@@ -232,11 +235,15 @@ void print(vector<char>& vec){
 
 int main(){
     string input,plainHex;
-    vector<char> keystr,cipher;
+    vector<char> keystr,cipher,decipher;
     vector<int> plain,key;
     getKey(keystr,key);
     getInput(input,plain);
-    encipher(key,input,cipher);
+    encipher(key,input,cipher,false);
+    cout<<"Cipher: ";
     print(cipher);
+    encipher(key,string (cipher.begin(),cipher.end()),decipher,true);
+    cout<<"Decipher: "<<fromHex(string (decipher.begin(),decipher.end()));
+    cout<<endl;
     return 0;
 }
